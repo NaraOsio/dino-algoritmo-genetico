@@ -1,6 +1,6 @@
 # Dino com Algoritmo Genético
 
-Projeto inspirado no jogo do dinossauro do Google Chrome.
+Projeto inspirado no jogo do dinossauro.
 
 ## Como executar
 
