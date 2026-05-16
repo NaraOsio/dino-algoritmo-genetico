@@ -13,8 +13,13 @@ ELITISMO = 4
 
 pygame.init()
 
+# cria tela primeiro
 tela = pygame.display.set_mode((LARGURA, ALTURA))
 pygame.display.set_caption("Dino IA - Algoritmo Genético")
+
+# carrega imagem depois da tela
+dino_img = pygame.image.load("assets/dino.png").convert_alpha()
+dino_img = pygame.transform.scale(dino_img, (120, 90))
 
 relogio = pygame.time.Clock()
 
@@ -22,12 +27,16 @@ fonte = pygame.font.SysFont("Arial", 22)
 fonte_grande = pygame.font.SysFont("Arial", 34, bold=True)
 
 
+# =========================
+# CÉREBRO IA
+# =========================
 class Cerebro:
 
     def __init__(self, pesos=None, bias=None):
 
         self.pesos = pesos[:] if pesos else [
-            random.uniform(-1, 1) for _ in range(6)
+            random.uniform(-1, 1)
+            for _ in range(6)
         ]
 
         self.bias = random.uniform(-1, 1) if bias is None else bias
@@ -66,6 +75,9 @@ class Cerebro:
             self.bias += random.uniform(-0.5, 0.5)
 
 
+# =========================
+# OBSTÁCULOS
+# =========================
 class Obstaculo:
 
     def __init__(self, velocidade):
@@ -88,7 +100,7 @@ class Obstaculo:
 
         pygame.draw.rect(
             tela,
-            (45, 45, 45),
+            (40, 40, 40),
             (self.x, self.y, self.largura, self.altura),
             border_radius=4
         )
@@ -97,14 +109,17 @@ class Obstaculo:
         return self.x + self.largura < 0
 
 
+# =========================
+# DINO
+# =========================
 class Dino:
 
     def __init__(self, cerebro=None):
 
         self.x = 100
 
-        self.largura = 42
-        self.altura = 58
+        self.largura = 100
+        self.altura = 70
 
         self.y = CHAO_Y - self.altura
 
@@ -194,46 +209,29 @@ class Dino:
         if not self.vivo:
             return
 
-        cor = (25, 160, 80) if destaque else (80, 170, 255)
+        # DESENHA DINO
+        tela.blit(dino_img, (self.x, self.y - 25))
 
-        # Corpo
-        pygame.draw.rect(
-            tela,
-            cor,
-            (self.x, self.y + 15, self.largura, self.altura - 15),
-            border_radius=8
-        )
+        # DESTACA O MELHOR
+        if destaque:
 
-        # Cabeça
-        pygame.draw.rect(
-            tela,
-            cor,
-            (self.x + 25, self.y, 35, 28),
-            border_radius=8
-        )
-
-        # Olho
-        pygame.draw.circle(
-            tela,
-            (0, 0, 0),
-            (self.x + 50, self.y + 9),
-            3
-        )
-
-        # Pernas
-        pygame.draw.rect(
-            tela,
-            cor,
-            (self.x + 7, self.y + self.altura - 5, 10, 18)
-        )
-
-        pygame.draw.rect(
-            tela,
-            cor,
-            (self.x + 27, self.y + self.altura - 5, 10, 18)
-        )
+            pygame.draw.rect(
+                tela,
+                (0, 255, 0),
+                (
+                    self.x - 4,
+                    self.y - 28,
+                    128,
+                    98
+                ),
+                2,
+                border_radius=8
+            )
 
 
+# =========================
+# POPULAÇÃO
+# =========================
 class Populacao:
 
     def __init__(self):
@@ -269,7 +267,7 @@ class Populacao:
 
         nova_lista = []
 
-        # Mantém os melhores
+        # mantém os melhores
         for melhor in melhores:
 
             cerebro = Cerebro(
@@ -279,7 +277,7 @@ class Populacao:
 
             nova_lista.append(Dino(cerebro))
 
-        # Cria filhos
+        # cria filhos
         while len(nova_lista) < TAMANHO_POPULACAO:
 
             pai = random.choice(melhores)
@@ -296,6 +294,9 @@ class Populacao:
         self.geracao += 1
 
 
+# =========================
+# JOGO
+# =========================
 class Jogo:
 
     def __init__(self):
@@ -385,7 +386,7 @@ class Jogo:
         pygame.draw.line(
             tela,
             (255, 80, 80),
-            (dino.x + dino.largura, dino.y + 10),
+            (dino.x + 90, dino.y + 20),
             (obstaculo.x, obstaculo.y),
             2
         )
@@ -396,7 +397,7 @@ class Jogo:
             (200, 50, 50)
         )
 
-        tela.blit(texto, (20, 170))
+        tela.blit(texto, (600, 70))
 
     def desenhar_interface(self):
 
@@ -425,7 +426,7 @@ class Jogo:
 
             tela.blit(texto, (20, y))
 
-            y += 32
+            y += 35
 
         titulo = fonte_grande.render(
             "Dino IA - Algoritmo Genético",
@@ -433,7 +434,7 @@ class Jogo:
             (35, 35, 35)
         )
 
-        tela.blit(titulo, (LARGURA - 430, 18))
+        tela.blit(titulo, (LARGURA - 500, 10))
 
     def desenhar(self):
 
@@ -471,6 +472,9 @@ class Jogo:
         self.desenhar_interface()
 
 
+# =========================
+# MAIN
+# =========================
 def main():
 
     jogo = Jogo()
@@ -509,7 +513,7 @@ def main():
                 (180, 0, 0)
             )
 
-            tela.blit(aviso, (330, 220))
+            tela.blit(aviso, (300, 220))
 
         pygame.display.flip()
 
